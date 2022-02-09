@@ -1,4 +1,4 @@
-"""I/O for to-do app using Typer"""
+"""Controler for to-do app using Typer"""
 
 from typer import *
 from typing import List, Optional
@@ -37,14 +37,14 @@ def open(path: str = Option(
     else:
         secho(f"Current to-do file set to: {path}", fg=colors.GREEN)
 
-from controler import Controler
+from model import Model
 @app.command()
 def add(description: List[str], priority: int = Option(2)):
     """Add a new to-do with a DESCRIPTION."""
     description = " ".join(description)
     try:
-        controler = Controler()
-        controler.add(description, priority)
+        db = Model()
+        db.add(description, priority)
     except OSError as err:
         secho(err, fg=colors.RED)
     else:
@@ -55,8 +55,8 @@ def add(description: List[str], priority: int = Option(2)):
 def display():
     """Displays the to-do list"""
     try:
-        controler = Controler()
-        todo_list = controler.get_todo_list()
+        db = Model()
+        todo_list = db.get_todo_list()
     except OSError as err:
         secho(err, fg=colors.RED)
     else:

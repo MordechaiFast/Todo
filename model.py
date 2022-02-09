@@ -1,7 +1,7 @@
-"""Model and controler for 'todo'"""
+"""Model for 'todo'"""
 from database import DatabaseHandler
 
-class Controler:
+class Model:
     def __init__(self, db_path) -> None:
         self._db_handler = DatabaseHandler(db_path())
     

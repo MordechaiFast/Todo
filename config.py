@@ -1,4 +1,4 @@
-"""Stores the path to the currently open to-do list in a config file"""
+"""Stores app settings in a config file"""
 from pathlib import Path
 from configparser import ConfigParser
 

@@ -1,4 +1,5 @@
 from config import get_db_path
+
 def display(todo_list: list):
     RESET_COLOR = '\033[0m'
     BOLD        = '\033[01m'
@@ -14,7 +15,7 @@ def display(todo_list: list):
     headers = "".join(columns)
 
     if len(todo_list) == 0:
-        print(RED, "This to-do list is empty", RESET_COLOR, sep='')
+        print(RED, f'The to-do list "{title}" is empty', RESET_COLOR, sep='')
     else:
         print(BLUE, BOLD, f'"{title}":\n',sep='')
         print(headers, RESET_COLOR, BLUE)
