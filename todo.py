@@ -22,12 +22,12 @@ file_group.add_argument('-o', '--open', nargs='+', metavar='PATH',
  help="Open an existing to-do list at PATH")
 
 new_item = parser.add_argument_group('Add to-do')
-new_item.add_argument('-a', '--add', nargs='+',
+new_item.add_argument('-a', '--add', nargs='+', action='append',
  metavar='DESCRIPTION', dest='description',
  help="Add a new to-do with a DESCRIPTION (multiple words)")
-new_item.add_argument('-i', '-priority', dest='priority',
+""" new_item.add_argument('-i', '-priority', dest='priority',
  type=int, default=2, choices=[1, 2, 3],
- help="of to-do being added")
+ help="of to-do being added") """
 
 edit_item = parser.add_argument_group('Edit item position or status')
 edit_item.add_argument('-u', '--move-up', nargs=2, type=int,
@@ -87,13 +87,13 @@ try:    # All file reads and writes could create errors, so be ready to record t
     # Contains the work functions and connects them to the to-do file
 
         if args.description:    # add to-do item
-            # Capitalize first word
-            args.description[0] = args.description[0].capitalize()
-            # String the words of the description together
-            description = " ".join(args.description)
-            db.add(description, args.priority)
-            log.info(f'to-do: "{description}" was added'
-            f" with priority: {args.priority}")
+            for item in args.description:
+                # Capitalize first word
+                item[0] = item[0].capitalize()
+                # String the words of the description together
+                description = " ".join(item)
+                db.add(description, priority=0)
+                log.info(f'to-do: "{description}" was added with priority: 0')
 
         if args.move_up:
             start = args.move_up[0] - 1
