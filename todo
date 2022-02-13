@@ -102,77 +102,79 @@ try:
                 description = " ".join(item)
                 db.add(description, priority=0)
                 log.info(f'to-do: "{description}" was added with priority: 0')
+        try:
+            if args.move_up:
+                for item in args.move_up:
+                    start = item[0] - 1
+                    places = item[1]
+                    todo = db.get_todo(start)
+                    for index in range(start, start - places, -1):
+                        db.move_up(index)
+                    log.info(f"""to-do #{item[0]}: "{todo['Description']}" """
+                    f"moved up {places} places")
 
-        if args.move_up:
-            for item in args.move_up:
-                start = item[0] - 1
-                places = item[1]
-                todo = db.get_todo(start)
-                for index in range(start, start - places, -1):
-                    db.move_up(index)
-                log.info(f"""to-do #{item[0]}: "{todo['Description']}" """
-                f"moved up {places} places")
+            if args.move_down:
+                for item in args.move_down:
+                    start = item[0] - 1
+                    places = item[1]
+                    todo = db.get_todo(start)
+                    for index in range(start, start + places):
+                        db.move_down(index)
+                    log.info(f"""to-do #{item[0]}: "{todo['Description']}" """
+                    f"moved down {places} places")
 
-        if args.move_down:
-            for item in args.move_down:
-                start = item[0] - 1
-                places = item[1]
-                todo = db.get_todo(start)
-                for index in range(start, start + places):
-                    db.move_down(index)
-                log.info(f"""to-do #{item[0]}: "{todo['Description']}" """
-                f"moved down {places} places")
-
-        if args.check is not None:    # complete to-do item, or all of them
-            if args.check[0] == 0:
-                for index in range(len(db.get_todo_list())):
-                    db.set_done(index)
-                log.info("All to-do items marked as done!")
-            else:
-                for item in args.check:
-                    id = item - 1
-                    todo = db.get_todo(id)
-                    db.set_done(id)
-                    log.info(f"""to-do #{item}: "{todo['Description']}" """
+            if args.check is not None:    # complete to-do item, or all of them
+                if args.check[0] == 0:
+                    for index in range(len(db.get_todo_list())):
+                        db.set_done(index)
+                    log.info("All to-do items marked as done!")
+                else:
+                    for item in args.check:
+                        id = item - 1
+                        todo = db.get_todo(id)
+                        db.set_done(id)
+                        log.info(f"""to-do #{item}: "{todo['Description']}" """
                         "marked as done!")
 
-        if args.uncheck is not None:  # un-complete to-do item, or all of them
-            if args.uncheck == 0:
-                for index in range(len(db.get_todo_list())):
-                    db.set_not_done(index)
-                log.info("All to-do items marked as not done!")
-            else:
-                for item in args.uncheck:
-                    id = item - 1
-                    todo = db.get_todo(id)
-                    db.set_not_done(id)
-                    log.info(f"""to-do #{item}: "{todo['Description']}" """
+            if args.uncheck is not None:  # un-complete to-do item, or all of them
+                if args.uncheck == 0:
+                    for index in range(len(db.get_todo_list())):
+                        db.set_not_done(index)
+                    log.info("All to-do items marked as not done!")
+                else:
+                    for item in args.uncheck:
+                        id = item - 1
+                        todo = db.get_todo(id)
+                        db.set_not_done(id)
+                        log.info(f"""to-do #{item}: "{todo['Description']}" """
                         "marked as not done!")
 
-        if args.prioritize:     # change priority
-            for item in args.prioritize:
-                id = item[0]-1
-                priority = item[1]
-                todo = db.get_todo(id)
-                db.change_priority(id, priority)
-                log.info(f"""to-do #{item[0]} "{todo['Description']}" """
-                f"set to priority {priority}")
+            if args.prioritize:     # change priority
+                for item in args.prioritize:
+                    id = item[0] - 1
+                    priority = item[1]
+                    todo = db.get_todo(id)
+                    db.change_priority(id, priority)
+                    log.info(f"""to-do #{item[0]} "{todo['Description']}" """
+                    f"set to priority {priority}")
 
-
-        if args.remove:
-            for item in args.remove:
-                id = item - 1
-                todo = db.get_todo(id)
-                if args.confirm == False:
-                    confirimation = input("Really remove to-do"
-                    f""" "{todo['Description']}"? [y/N]""")
-                    
-                if args.confirm == True or confirimation.upper() == 'Y':
-                    db.remove_todo(id)
-                    log.info(f"""to-do #{args.remove}: "{todo['Description']}" """
+            if args.remove:
+                for item in args.remove:
+                    id = item - 1
+                    todo = db.get_todo(id)
+                    if args.confirm == False:
+                        confirimation = input("Really remove to-do"
+                        f""" "{todo['Description']}"? [y/N]""")
+                        
+                    if args.confirm == True or confirimation.upper() == 'Y':
+                        db.remove_todo(id)
+                        log.info(f"""to-do #{args.remove}: "{todo['Description']}" """
                         "removed from the list!")
-                else:
-                    print("Removal canceled")
+                    else:
+                        print("Removal canceled")
+
+        except IndexError:
+            log.error("No such to-do item")
 
         if args.auto:
             if get_auto_display():
@@ -185,7 +187,6 @@ try:
             todo_list = db.get_todo_list()
             display(todo_list)
 
-except IndexError:
-    log.error("No such to-do item")
+
 except OSError as err:
     log.error(err)

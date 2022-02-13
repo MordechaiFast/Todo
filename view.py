@@ -24,6 +24,7 @@ def display(todo_list: list):
         for id, todo in enumerate(todo_list, 1):
             desc, priority, done = todo.values()
             print(
+                f"{RED if not done else BLUE}"
                 f"{id}{' ' * (len(columns[0]) - len(str(id)))}"
                 f"| ({priority}){' ' * (len(columns[1]) - len(str(priority)) - 4)}"
                 f"| {done}{' ' * (len(columns[2]) - len(str(done)) - 2)}"
