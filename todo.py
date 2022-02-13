@@ -11,12 +11,11 @@ default_db_path = get_default_path()
 from argparse import ArgumentParser
 parser = ArgumentParser(description="To-do app. Loosly based upon rptodo.",
  usage="%(prog)s [options]")
-parser.add_argument('-v', action='version', version='Command line to-do 1.2')
+parser.add_argument('-v', action='version', version='Command line to-do 1.3')
 
 file_group_parent = parser.add_argument_group('File operations')
 file_group= file_group_parent.add_mutually_exclusive_group(required=False)
-file_group.add_argument('-n', '--new', nargs='?', const=default_db_path,
- metavar='PATH',
+file_group.add_argument('-n', '--new', nargs='*', metavar='PATH',
  help=f"Creates a new to-do list at PATH. By default {default_db_path}")
 file_group.add_argument('-o', '--open', nargs='+', metavar='PATH',
  help="Open an existing to-do list at PATH")
@@ -30,22 +29,26 @@ new_item.add_argument('-a', '--add', nargs='+', action='append',
  help="of to-do being added") """
 
 edit_item = parser.add_argument_group('Edit item position or status')
-edit_item.add_argument('-u', '--move-up', nargs=2, type=int,
- metavar=('ID', 'PLACES'),
+edit_item.add_argument('-u', '--move-up', nargs=2, metavar=('ID', 'PLACES'),
+ type=int, action='append',
  help="Moves item ID up by a number of PLACES")
-edit_item.add_argument('-d', '--move-down', nargs=2, type=int,
- metavar=('ID', 'PLACES'),
+edit_item.add_argument('-d', '--move-down', nargs=2, metavar=('ID', 'PLACES'),
+ type=int, action='append',
  help="Moves item ID down by a number of PLACES")
-edit_item.add_argument('-c', '--check', type=int, metavar='ID',
+edit_item.add_argument('-c', '--check', metavar='ID',
+ type=int, action='append',
  help="Marks item ID as done. If 0 is entered, marks ALL as done")
-edit_item.add_argument('-k', '--uncheck', type=int, metavar='ID',
+edit_item.add_argument('-k', '--uncheck', metavar='ID',
+ type=int, action='append',
  help="Marks item ID as not done. If 0 is entered, marks ALL as not done")
-edit_item.add_argument('-p', '--change', nargs = 2, type=int,
+edit_item.add_argument('-p', '--prioritize', nargs = 2,
  metavar=('ID', 'PRIORITY'),
+ type=int, action='append',
  help="Changes the priority of ID to PRIORITY")
 
 remove_item = parser.add_argument_group('Remove a to-do')
-remove_item.add_argument('-r', '--remove', type=int, metavar='ID',
+remove_item.add_argument('-r', '--remove', metavar='ID',
+ type=int, action='append',
  help="Remove a to-do using its ID number")
 remove_item.add_argument('-confirm', action='store_true',
  help="Confirm removal on command-line")
@@ -67,23 +70,28 @@ log.addHandler(terminal_logging)
 
 from config import (save_db_path, get_db_path,
  get_auto_display, set_auto_display, set_dont_display)
+from pathlib import Path
 from database import init_db
-from model import Model
+from model import DatabaseModel
 from view import display
-try:    # All file reads and writes could create errors, so be ready to record them
-    if args.new:
-        db_path = args.new
+try:
+# All file reads and writes could create errors, so be ready to record them
+    if args.new is not None:
+        db_path = ' '.join(args.new) if args.new !=[] else default_db_path
         save_db_path(db_path)
         log.info(f"Current to-do file set to: {db_path}")
-        init_db(db_path)
-        log.info("New to-do list initilized")
+        if Path(db_path).exists():
+            log.info("This file already exists")
+        else:
+            init_db(db_path)
+            log.info("New to-do list initilized")
 
-    if args.open:
+    if args.open is not None:
         db_path = " ".join(args.open)
         save_db_path(db_path)
         log.info(f"Current to-do file set to: {db_path}")
 
-    with Model(get_db_path) as db:
+    with DatabaseModel(get_db_path) as db:
     # Contains the work functions and connects them to the to-do file
 
         if args.description:    # add to-do item
@@ -96,34 +104,37 @@ try:    # All file reads and writes could create errors, so be ready to record t
                 log.info(f'to-do: "{description}" was added with priority: 0')
 
         if args.move_up:
-            start = args.move_up[0] - 1
-            places = args.move_up[1]
-            todo = db.get_todo(start)
-            for index in range(start, start - places, -1):
-                db.move_up(index)
-            log.info(f"""to-do #{args.move_up[0]}: "{todo['Description']}" """
-            f"moved up {places} places")
+            for item in args.move_up:
+                start = item[0] - 1
+                places = item[1]
+                todo = db.get_todo(start)
+                for index in range(start, start - places, -1):
+                    db.move_up(index)
+                log.info(f"""to-do #{item[0]}: "{todo['Description']}" """
+                f"moved up {places} places")
 
         if args.move_down:
-            start = args.move_down[0] - 1
-            places = args.move_down[1]
-            todo = db.get_todo(start)
-            for index in range(start, start + places):
-                db.move_down(index)
-            log.info(f"""to-do #{args.move_down[0]}: "{todo['Description']}" """
-            f"moved down {places} places")
+            for item in args.move_down:
+                start = item[0] - 1
+                places = item[1]
+                todo = db.get_todo(start)
+                for index in range(start, start + places):
+                    db.move_down(index)
+                log.info(f"""to-do #{item[0]}: "{todo['Description']}" """
+                f"moved down {places} places")
 
         if args.check is not None:    # complete to-do item, or all of them
-            if args.check == 0:
+            if args.check[0] == 0:
                 for index in range(len(db.get_todo_list())):
                     db.set_done(index)
                 log.info("All to-do items marked as done!")
             else:
-                id = args.check - 1
-                todo = db.get_todo(id)
-                db.set_done(id)
-                log.info(f"""to-do #{args.check}: "{todo['Description']}" """
-                    "marked as done!")
+                for item in args.check:
+                    id = item - 1
+                    todo = db.get_todo(id)
+                    db.set_done(id)
+                    log.info(f"""to-do #{item}: "{todo['Description']}" """
+                        "marked as done!")
 
         if args.uncheck is not None:  # un-complete to-do item, or all of them
             if args.uncheck == 0:
@@ -131,34 +142,37 @@ try:    # All file reads and writes could create errors, so be ready to record t
                     db.set_not_done(index)
                 log.info("All to-do items marked as not done!")
             else:
-                id = args.uncheck - 1
-                todo = db.get_todo(id)
-                db.set_not_done(id)
-                log.info(f"""to-do #{args.uncheck}: "{todo['Description']}" """
-                    "marked as not done!")
+                for item in args.uncheck:
+                    id = item - 1
+                    todo = db.get_todo(id)
+                    db.set_not_done(id)
+                    log.info(f"""to-do #{item}: "{todo['Description']}" """
+                        "marked as not done!")
 
-        if args.change:     # change priority
-            id = args.change[0]-1
-            priority = args.change[1]
-            todo = db.get_todo(id)
-            db.change_priority(id, priority)
-            log.info(f"""to-do #{args.change[0]} "{todo['Description']}" """
-            f"set to priority {priority}")
+        if args.prioritize:     # change priority
+            for item in args.prioritize:
+                id = item[0]-1
+                priority = item[1]
+                todo = db.get_todo(id)
+                db.change_priority(id, priority)
+                log.info(f"""to-do #{item[0]} "{todo['Description']}" """
+                f"set to priority {priority}")
 
 
         if args.remove:
-            id = args.remove - 1
-            todo = db.get_todo(id)
-            if args.confirm == False:
-                confirimation = input("Really remove to-do"
-                f""" "{todo['Description']}"? [y/N]""")
-                
-            if args.confirm == True or confirimation.upper() == 'Y':
-                db.remove_todo(id)
-                log.info(f"""to-do #{args.remove}: "{todo['Description']}" """
-                    "removed from the list!")
-            else:
-                print("Removal canceled")
+            for item in args.remove:
+                id = item - 1
+                todo = db.get_todo(id)
+                if args.confirm == False:
+                    confirimation = input("Really remove to-do"
+                    f""" "{todo['Description']}"? [y/N]""")
+                    
+                if args.confirm == True or confirimation.upper() == 'Y':
+                    db.remove_todo(id)
+                    log.info(f"""to-do #{args.remove}: "{todo['Description']}" """
+                        "removed from the list!")
+                else:
+                    print("Removal canceled")
 
         if args.auto:
             if get_auto_display():

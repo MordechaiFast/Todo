@@ -37,13 +37,13 @@ def open(path: str = Option(
     else:
         secho(f"Current to-do file set to: {path}", fg=colors.GREEN)
 
-from model import Model
+from model import DatabaseModel
 @app.command()
 def add(description: List[str], priority: int = Option(2)):
     """Add a new to-do with a DESCRIPTION."""
     description = " ".join(description)
     try:
-        db = Model()
+        db = DatabaseModel(get_db_path)
         db.add(description, priority)
     except OSError as err:
         secho(err, fg=colors.RED)
@@ -55,7 +55,7 @@ def add(description: List[str], priority: int = Option(2)):
 def display():
     """Displays the to-do list"""
     try:
-        db = Model()
+        db = DatabaseModel()
         todo_list = db.get_todo_list()
     except OSError as err:
         secho(err, fg=colors.RED)

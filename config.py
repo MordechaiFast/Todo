@@ -46,9 +46,13 @@ def get_auto_display() -> bool:
     except OSError as err:
         raise OSError('Error reading config file\n' + str(err))
 
-    if   (config_parser["Settings"]["auto display"]) == 'True':
-        return True
-    elif (config_parser["Settings"]["auto display"]) == 'False':
+    try:
+        if   (config_parser["Settings"]["auto display"]) == 'True':
+            return True
+        elif (config_parser["Settings"]["auto display"]) == 'False':
+            return False
+    except KeyError:
+        config_parser["Settings"] = {"auto display": False}
         return False
 
 def set_auto_display() -> None:
