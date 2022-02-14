@@ -96,7 +96,7 @@ try:
         save_db_path(db_path)
         log.info(f"Current to-do file set to: {db_path}")
 
-    with DatabaseModel(get_db_path) as db:
+    with DatabaseModel(get_db_path()) as db:
     # Contains the work functions and connects them to the to-do file
 
         if args.add:

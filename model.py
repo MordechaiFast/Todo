@@ -3,7 +3,7 @@ from database import DatabaseHandler
 
 class DatabaseModel:
     def __init__(self, db_path) -> None:
-        self._db_handler = DatabaseHandler(db_path())
+        self._db_handler = DatabaseHandler(db_path)
     
     def __enter__(self):
         self._todo_list = self._db_handler.read_db()
