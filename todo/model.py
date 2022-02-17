@@ -2,6 +2,8 @@
 from .database import DatabaseHandler
 
 class DatabaseModel:
+    """Contains the work functions and connects them to the to-do file"""
+
     def __init__(self, db_path) -> None:
         self._db_handler = DatabaseHandler(db_path)
     

@@ -5,13 +5,14 @@ Logging with logger.
 Configuration handling with configparser.
 Database storage with json library."""
 
-import sys
 from argparse import ArgumentParser
 from .config import get_default_path
 
 default_db_path = get_default_path()
 
 def parse(args):
+    """Set-up and read the command line arguments, with argparser help"""
+
     parser = ArgumentParser(description="To-do app. Loosly based upon rptodo.",
     usage="%(prog)s [options]")
     parser.add_argument('-v', action='version',
@@ -50,8 +51,8 @@ def parse(args):
      help="Changes the priority of ID to PRIORITY")
 
     remove_item = parser.add_argument_group('Remove a to-do')
-    remove_item.add_argument('-r', '--remove', metavar='ID',
-     type=int, action='append',
+    remove_item.add_argument('-r', '--remove',
+     metavar='ID', type=int, action='append',
      help="Remove a to-do using its ID number")
     remove_item.add_argument('-confirm', action='store_true',
      help="Confirm removal on command-line")
@@ -62,8 +63,9 @@ def parse(args):
     display_list.add_argument('-t', '--auto', action='store_true',
      help="Toggles if the list is automatically displayed")
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
+# Set up the logging
 import logging
 log = logging.Logger('todo')
 terminal_logging = logging.StreamHandler()
@@ -79,6 +81,7 @@ from .model import DatabaseModel
 from .view import display
 
 def cli_action(args):
+    """Act upon the command line"""
     if args.new is not None:
         db_path = ' '.join(args.new) if args.new !=[] else default_db_path
         save_db_path(db_path)
@@ -95,8 +98,6 @@ def cli_action(args):
         log.info(f"Current to-do file set to: {db_path}")
 
     with DatabaseModel(get_db_path()) as db:
-    # Contains the work functions and connects them to the to-do file
-
         if args.add:
             for item in args.add:
                 # Capitalize first word
@@ -106,6 +107,7 @@ def cli_action(args):
                 db.add(description, priority=0)
                 log.info(f'to-do: "{description}" was added with priority: 0')
         try:
+        # For options that refer to a numbered item, be ready for an invalid id
             if args.move_up:
                 for item in args.move_up:
                     start = item[0] - 1
@@ -190,6 +192,7 @@ def cli_action(args):
             todo_list = db.get_todo_list()
             display(todo_list)
 
+import sys
 if __name__ == '__main__':
     try:
     # All file reads and writes could create errors, so be ready to record them
