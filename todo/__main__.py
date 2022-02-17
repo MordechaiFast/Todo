@@ -7,7 +7,7 @@ Database storage with json library."""
 
 import sys
 from argparse import ArgumentParser
-from config import get_default_path
+from .config import get_default_path
 
 default_db_path = get_default_path()
 
@@ -64,8 +64,6 @@ def parse(args):
 
     return parser.parse_args()
 
-args = parse(sys.argv[1:])
-
 import logging
 log = logging.Logger('todo')
 terminal_logging = logging.StreamHandler()
@@ -73,14 +71,14 @@ terminal_logging.setLevel(logging.INFO)
 terminal_logging.setFormatter(logging.Formatter('{message}', style='{'))
 log.addHandler(terminal_logging)
 
-from config import (save_db_path, get_db_path,
- get_auto_display, set_auto_display, set_dont_display)
 from pathlib import Path
-from database import init_db
-from model import DatabaseModel
-from view import display
-try:
-# All file reads and writes could create errors, so be ready to record them
+from .config import (save_db_path, get_db_path,
+ get_auto_display, set_auto_display, set_dont_display)
+from .database import init_db
+from .model import DatabaseModel
+from .view import display
+
+def cli_action(args):
     if args.new is not None:
         db_path = ' '.join(args.new) if args.new !=[] else default_db_path
         save_db_path(db_path)
@@ -192,5 +190,9 @@ try:
             todo_list = db.get_todo_list()
             display(todo_list)
 
-except OSError as err:
-    log.error(err)
+if __name__ == '__main__':
+    try:
+    # All file reads and writes could create errors, so be ready to record them
+        cli_action(parse(sys.argv[1:]))
+    except OSError as err:
+        log.error(err)

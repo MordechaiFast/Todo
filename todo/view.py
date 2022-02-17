@@ -1,4 +1,4 @@
-from config import get_db_path
+from .config import get_db_path
 
 def display(todo_list: list):
     RESET_COLOR = '\033[0m'
