@@ -20,8 +20,8 @@ def display(todo_list: list):
     if len(todo_list) == 0:
         print(RED, f'The to-do list "{title}" is empty', RESET_COLOR, sep='')
     else:
-        print(WHITEBG, BLUE, BOLD, f'"{title}":\n',sep='')
-        print(headers, RESET_COLOR, WHITEBG) # to cancel the bold
+        print(BLUE, BOLD, f'"{title}":\n',sep='')
+        print(headers, RESET_COLOR) # to cancel the bold
         print("-" * len(headers))
         for id, todo in enumerate(todo_list, 1):
             desc, priority, done = todo.values()

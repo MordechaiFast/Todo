@@ -14,7 +14,7 @@ class DatabaseModel:
     def __exit__(self, *args):
         self._db_handler.write_db(self._todo_list)
 
-    def add(self, description: list, priority: int) -> None:
+    def add(self, description: str, priority: int) -> None:
         """Add a new to-do to the database."""
         todo = {
             "Description": description,

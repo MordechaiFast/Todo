@@ -16,7 +16,7 @@ def parse(args):
     parser = ArgumentParser(description="To-do app. Loosly based upon rptodo.",
     usage="%(prog)s [options]")
     parser.add_argument('-v', action='version',
-     version='Command line to-do 1.3')
+     version='Command line to-do 1.4')
 
     file_group_parent = parser.add_argument_group('File operations')
     file_group= file_group_parent.add_mutually_exclusive_group(required=False)
