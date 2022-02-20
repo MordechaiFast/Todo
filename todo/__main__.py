@@ -13,7 +13,7 @@ default_db_path = get_default_path()
 
 def parse(args):
     parser = ArgumentParser(description="To-do app. Loosly based upon rptodo.",
-    usage="%(prog)s [options]")
+     usage="%(prog)s [options]")
     parser.add_argument('-v', action='version',
      version='Command line to-do 1.3')
 
