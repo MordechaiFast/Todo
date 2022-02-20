@@ -189,8 +189,9 @@ def cli_action(args):
             log.info(f"Automatic listing set to {get_auto_display()}")
 
         if args.list or get_auto_display():
+            title = get_db_path().stem
             todo_list = db.get_todo_list()
-            display(todo_list)
+            display(title, todo_list)
 
 import sys
 if __name__ == '__main__':

@@ -1,6 +1,4 @@
-from .config import get_db_path
-
-def display(todo_list: list):
+def display(title: str, todo_list: list):
     RESET_COLOR = '\33[0m'
     BOLD        = '\33[01m'
     RED         = '\33[31m'
@@ -9,7 +7,6 @@ def display(todo_list: list):
     BLUE        = '\33[34m'
     WHITEBG     = '\33[47m'
 
-    title = get_db_path().stem
     columns = (
         "ID. ",
         "| (P) ",

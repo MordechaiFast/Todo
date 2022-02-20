@@ -30,7 +30,6 @@ test_data2 = {"description": "Do housework", "priority": 2,
 @pytest.mark.parametrize("description, priority, expected",
  [pytest.param(test_data1["description"], test_data1["priority"], test_data1["todo"]),
   pytest.param(test_data2["description"], test_data2["priority"], test_data2["todo"])])
-
 def test_add(mock_json_file, description, priority, expected):
     with DatabaseModel(mock_json_file) as test_db:
         test_db.add(description, priority)
@@ -41,16 +40,23 @@ def test_add(mock_json_file, description, priority, expected):
         assert len(todo_list) == 2
 
 @pytest.fixture
-def mock_empty_json_file(tmp_path):
+def mock_nonexistant_file(tmp_path):
     db_file = tmp_path / "todo.json"
     return db_file
 
-def test_add_to_empty_file(mock_empty_json_file):
+def test_opening_nonexistant_file(mock_nonexistant_file):
     try:
-        with DatabaseModel(mock_empty_json_file) as test_db:
-            test_db.add("test task", 0)
-    except OSError: pass
+        with DatabaseModel(mock_nonexistant_file): pass
+    except IOError: pass
+
+@pytest.fixture
+def mock_empty_file(tmp_path):
+    db_file = tmp_path / "todo.json"
+    with db_file.open("w") as file:
+        file.write("")
+    return db_file
+
+def test_oppening_empty_file(mock_empty_file):
     try:
-        with DatabaseModel(mock_empty_json_file) as test_db:
-            assert len(test_db.get_todo_list()) == 0
-    except OSError: pass
+        with DatabaseModel(mock_empty_file): pass
+    except IOError: pass
