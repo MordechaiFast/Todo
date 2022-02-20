@@ -39,3 +39,18 @@ def test_add(mock_json_file, description, priority, expected):
     with DatabaseModel(mock_json_file) as test_db:
         todo_list = test_db.get_todo_list()
         assert len(todo_list) == 2
+
+@pytest.fixture
+def mock_empty_json_file(tmp_path):
+    db_file = tmp_path / "todo.json"
+    return db_file
+
+def test_add_to_empty_file(mock_empty_json_file):
+    try:
+        with DatabaseModel(mock_empty_json_file) as test_db:
+            test_db.add("test task", 0)
+    except OSError: pass
+    try:
+        with DatabaseModel(mock_empty_json_file) as test_db:
+            assert len(test_db.get_todo_list()) == 0
+    except OSError: pass
