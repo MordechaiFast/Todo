@@ -45,9 +45,9 @@ def mock_nonexistant_file(tmp_path):
     return db_file
 
 def test_opening_nonexistant_file(mock_nonexistant_file):
-    try:
+    with pytest.raises(IOError) as err:
         with DatabaseModel(mock_nonexistant_file): pass
-    except IOError: pass
+    assert 'not found' in str(err)
 
 @pytest.fixture
 def mock_empty_file(tmp_path):
@@ -56,7 +56,7 @@ def mock_empty_file(tmp_path):
         file.write("")
     return db_file
 
-def test_oppening_empty_file(mock_empty_file):
-    try:
+def test_opening_empty_file(mock_empty_file):
+    with pytest.raises(IOError) as err:
         with DatabaseModel(mock_empty_file): pass
-    except IOError: pass
+    assert 'interpreting' in str(err)
