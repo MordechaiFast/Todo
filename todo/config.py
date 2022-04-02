@@ -1,10 +1,11 @@
 """Stores app settings in a config file"""
 from pathlib import Path
 from configparser import ConfigParser
+config_parser = ConfigParser()
 
 config_path = Path('config.ini')
 
-def create_config() -> None:
+def _create_config() -> None:
     try:
         config_path.touch(exist_ok=True)
     except OSError as err:
@@ -13,11 +14,10 @@ def create_config() -> None:
 def get_default_path() -> Path:
     return Path.cwd() / "to-do.json"
 
-def save_db_path(db_path) -> None:
+def save_db_path(db_path: str) -> None:
     if not config_path.exists():
-        create_config()
+        _create_config()
     # record db location
-    config_parser = ConfigParser()
     try:
         config_parser.read(config_path)
         config_parser["Open file"] = {"database": db_path}
@@ -31,7 +31,6 @@ def get_db_path() -> Path:
         raise IOError('Config file does not exist.'
         ' Open a to-do list to begin.')
 
-    config_parser = ConfigParser()
     try:
         config_parser.read(config_path)
     except OSError as err:
@@ -40,7 +39,6 @@ def get_db_path() -> Path:
     return Path(config_parser["Open file"]["database"])
 
 def get_auto_display() -> bool:
-    config_parser = ConfigParser()
     try:
         config_parser.read(config_path)
     except OSError as err:
@@ -56,7 +54,6 @@ def get_auto_display() -> bool:
         return False
 
 def set_auto_display() -> None:
-    config_parser = ConfigParser()
     try:
         config_parser.read(config_path)
         config_parser["Settings"] = {"auto display": True}
@@ -66,7 +63,6 @@ def set_auto_display() -> None:
         raise OSError('Error writing to config file\n' + str(err))
 
 def set_dont_display() -> None:
-    config_parser = ConfigParser()
     try:
         config_parser.read(config_path)
         config_parser["Settings"] = {"auto display": False}
@@ -74,4 +70,3 @@ def set_dont_display() -> None:
             config_parser.write(file)
     except OSError as err:
         raise OSError('Error writing to config file\n' + str(err))
-

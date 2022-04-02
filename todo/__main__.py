@@ -5,12 +5,28 @@ Logging with logger.
 Configuration handling with configparser.
 Database storage with json library."""
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
+from typing import Sequence
+from pathlib import Path
 from .config import get_default_path
 
-default_db_path = get_default_path()
+# Set up the logging
+import logging
+log = logging.Logger('todo')
+terminal_logging = logging.StreamHandler()
+terminal_logging.setLevel(logging.INFO)
+terminal_logging.setFormatter(logging.Formatter('{message}', style='{'))
+log.addHandler(terminal_logging)
 
-def parse(args):
+from .config import (save_db_path, get_db_path,
+ get_auto_display, set_auto_display, set_dont_display)
+from .database import init_db
+from .model import DatabaseModel
+from .view import display
+
+default_db_path: Path = get_default_path()
+
+def parse(args: Sequence[str]):
     """Set-up and read the command line arguments, with argparser help"""
 
     parser = ArgumentParser(description="To-do app. Loosly based upon rptodo.",
@@ -65,22 +81,7 @@ def parse(args):
 
     return parser.parse_args(args)
 
-# Set up the logging
-import logging
-log = logging.Logger('todo')
-terminal_logging = logging.StreamHandler()
-terminal_logging.setLevel(logging.INFO)
-terminal_logging.setFormatter(logging.Formatter('{message}', style='{'))
-log.addHandler(terminal_logging)
-
-from pathlib import Path
-from .config import (save_db_path, get_db_path,
- get_auto_display, set_auto_display, set_dont_display)
-from .database import init_db
-from .model import DatabaseModel
-from .view import display
-
-def cli_action(args):
+def cli_action(args: Namespace):
     """Act upon the command line"""
     if args.new is not None:
         db_path = ' '.join(args.new) if args.new !=[] else default_db_path

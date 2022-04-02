@@ -8,7 +8,7 @@ class DatabaseModel:
         self._db_handler = DatabaseHandler(db_path)
     
     def __enter__(self):
-        self._todo_list = self._db_handler.read_db()
+        self._todo_list: list[dict] = self._db_handler.read_db()
         return self
 
     def __exit__(self, *args):

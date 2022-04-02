@@ -12,7 +12,7 @@ from pathlib import Path
 import json
 class DatabaseHandler:
     """Reads and writes to the json file"""
-    def __init__(self, db_path) -> None:
+    def __init__(self, db_path: Path | str) -> None:
         if Path(db_path).exists():
             self._db_path = db_path
         else:
