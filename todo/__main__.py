@@ -26,7 +26,7 @@ from .view import display
 
 default_db_path: Path = get_default_path()
 
-def parse(args: Sequence[str]):
+def parse(args: Sequence[str]) -> Namespace:
     """Set-up and read the command line arguments, with argparser help"""
 
     parser = ArgumentParser(description="To-do app. Loosly based upon rptodo.",
@@ -81,10 +81,10 @@ def parse(args: Sequence[str]):
 
     return parser.parse_args(args)
 
-def cli_action(args: Namespace):
+def cli_action(args: Namespace) -> None:
     """Act upon the command line"""
     if args.new is not None:
-        db_path = ' '.join(args.new) if args.new !=[] else default_db_path
+        db_path = ' '.join(args.new) if args.new != [] else default_db_path
         save_db_path(db_path)
         log.info(f"Current to-do file set to: {db_path}")
         if Path(db_path).exists():
@@ -172,7 +172,7 @@ def cli_action(args: Namespace):
                         confirimation = input("Really remove to-do"
                         f""" "{todo['Description']}"? [y/N]""")
                         
-                    if args.confirm == True or confirimation.upper() == 'Y':
+                    if args.confirm == True or confirimation.lower() == 'y':
                         db.remove_todo(id)
                         log.info(f"""to-do #{args.remove}: "{todo['Description']}" """
                         "removed from the list!")
@@ -183,13 +183,13 @@ def cli_action(args: Namespace):
             log.error("No such to-do item")
 
         if args.auto:
-            if get_auto_display():
+            if get_auto_display() == True:
                 set_dont_display()
             else:
                 set_auto_display()
             log.info(f"Automatic listing set to {get_auto_display()}")
 
-        if args.list or get_auto_display():
+        if args.list or get_auto_display() == True:
             title = get_db_path().stem
             todo_list = db.get_todo_list()
             display(title, todo_list)

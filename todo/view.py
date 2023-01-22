@@ -26,6 +26,6 @@ def display(title: str, todo_list: list):
                 f"{BLUE if done else RED if priority >= 2 else GREEN}"
                 f"{id}{' ' * (len(columns[0]) - len(str(id)))}"
                 f"| ({priority if not done else '-'}) "
-                f"| {desc}",
-                sep='')
+                f"| {desc}"
+            )
         print(BLUE, "-" * len(headers) + "\n", RESET_COLOR, sep='')

@@ -8,54 +8,49 @@ class DatabaseModel:
         self._db_handler = DatabaseHandler(db_path)
     
     def __enter__(self):
+        """Reads the database upon entry to context"""
         self._todo_list: list[dict] = self._db_handler.read_db()
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
+        """Records the to-do list to the database upon exit"""
         self._db_handler.write_db(self._todo_list)
 
     def add(self, description: str, priority: int) -> None:
         """Add a new to-do to the database."""
-        todo = {
+        self._todo_list.append({
             "Description": description,
             "Priority": priority,
             "Done": False,
-        }
-        self._todo_list.append(todo)
+        })
 
     def change_priority(self, id: int, priority: int) -> None:
         """Changes the proprity of a to-do to the given value"""
-        todo = self._todo_list[id]
-        todo['Priority'] = priority
-        # Pass-by-reference, so no need to put back into the list
+        self._todo_list[id]['Priority'] = priority
 
     def set_done(self, id: int) -> None:
         """Set a to-do as done"""
-        todo = self._todo_list[id]
-        todo['Done'] = True
+        self._todo_list[id]['Done'] = True
 
     def set_not_done(self, id: int) -> None:
         """Set a to-do as not done"""
-        todo = self._todo_list[id]
-        todo['Done'] = False
+        self._todo_list[id]['Done'] = False
 
     def move_up(self, id: int) -> None:
         """Moves an item up one in the list.
         Call multiple times to move up multiple places"""
-        this_todo = self._todo_list[id]
-        self._todo_list[id] = self._todo_list[id - 1]
-        self._todo_list[id - 1] = this_todo
+        self._todo_list[id], self._todo_list[id - 1] \
+        = self._todo_list[id - 1], self._todo_list[id]
 
     def move_down(self, id: int) -> None:
         """Moves an item down one in the list.
         Call multiple times to move up multiple places"""
-        this_todo = self._todo_list[id]
-        self._todo_list[id] = self._todo_list[id + 1]
-        self._todo_list[id + 1] = this_todo
+        self._todo_list[id], self._todo_list[id + 1] \
+        = self._todo_list[id + 1], self._todo_list[id]
 
     def remove_todo(self, id: int) -> None:
         """Remove a to-do from the list"""
-        self._todo_list.pop(id)
+        del self._todo_list[id]
 
     def get_todo(self, id: int) -> dict:
         """Returns a single to-do with id"""

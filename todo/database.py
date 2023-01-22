@@ -1,6 +1,8 @@
 """Module for reading and writing to a json database"""
+from pathlib import Path
+import json
 
-def init_db(db_path) -> None:
+def init_db(db_path: Path | str) -> None:
     """Create the database"""
     try:
         with open(db_path, 'w') as db:
@@ -8,8 +10,6 @@ def init_db(db_path) -> None:
     except OSError as err:
         raise OSError('Error initilizing list\n' + str(err))
 
-from pathlib import Path
-import json
 class DatabaseHandler:
     """Reads and writes to the json file"""
     def __init__(self, db_path: Path | str) -> None:
